@@ -1,0 +1,163 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+	<title>Dimasyan</title>
+	<script type="text/javascript" src="js/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+var game = new Phaser.Game(600, 800, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
+var frames;
+var frame1;
+var frame2;
+var frame3;
+var player;
+var spikes_r;
+var spikes_l;
+var cursors;
+var speed = 125;
+var count = 0;
+var counter;
+
+function preload() {
+	game.load.image('bg', 'assets/bg.png');
+	game.load.image('frame1', 'assets/platform.png');
+	game.load.image('player', 'assets/sailaubek.png');
+	game.load.spritesheet('spike_r', 'assets/spike1.png');
+	game.load.image('spike_l', 'assets/spike.png');
+	game.load.image('spike_t', 'assets/spike_t.png');
+	game.load.image('spike_b', 'assets/spike_b.png');
+}
+
+function create() {
+	game.physics.startSystem(Phaser.Physics.ARCADE);
+	game.add.sprite(0 ,0, 'bg');
+	counter = game.add.text(270, 320, '0', { fontSize: '125px', fill: '#000'});
+
+
+	cursors = game.input.keyboard.createCursorKeys();
+
+	frames = game.add.group();
+	frames.enableBody = true;
+	frame1 = frames.create(0, 0, 'frame1');
+	frame1.scale.setTo(4, 3);
+	frame1.body.immovable = true;
+	frame2 = frames.create(475, 0, 'frame1');
+	frame2.scale.setTo(4, 3);
+	frame2.body.immovable = true;
+	frame3 = frames.create(100, 600, 'frame1');
+	frame3.scale.setTo(12.5, 0.5);
+	frame3.body.immovable = true;
+	frame4 = frames.create(100, 100, 'frame1');
+	frame4.scale.setTo(12.5, 0.2);
+	frame4.body.immovable = true;
+
+	player = game.add.sprite(275, 400, 'player');
+	game.physics.arcade.enable(player);
+
+	player.body.bounce.y = 0.2;
+    player.body.gravity.y = 15000;
+    player.body.bounce.x = 10;
+    player.body.gravity.x = 1000;
+    player.body.collideWorldBounds = true;
+
+
+    spikes_r = game.add.group();
+    spikes_r.enableBody = true;
+    for (var i =0; i < 3; i++){
+    	var spike_r = spikes_r.create(455, 580 - 100* (i+1) *Math.random(), 'spike_r');
+    	spike_r.scale.setTo(0.4, 0.4);
+    }
+
+
+    spikes_l = game.add.group();
+    spikes_l.enableBody = true;
+    for (var j = 0; j <3; j++){
+    	var spike_l = spikes_l.create(128, 580 - 100*(j+1)*Math.random(), 'spike_l');
+    	spike_l.scale.setTo(0.4, 0.4);
+    }
+
+    spikes_t = game.add.group();
+    spikes_t.enableBody = true;
+    for (var m =0; m < 12; m++){
+    	var spike_t = spikes_t.create(127 + m*30, 180, 'spike_t');
+    	spike_t.scale.setTo(0.4, 0.4);
+    }
+
+    spikes_b = game.add.group();
+    spikes_b.enableBody = true;
+    for (var m =0; m < 12; m++){
+    	var spike_b = spikes_b.create(127 + m*30, 580, 'spike_b');
+    	spike_b.scale.setTo(0.4, 0.4);
+    }
+
+}
+
+function update() {
+    game.physics.arcade.collide(player, frame2, collisionFrameR, null, this);
+    game.physics.arcade.collide(player, frame3);
+    game.physics.arcade.collide(player, frame4);
+    game.physics.arcade.collide(player, frame1, collisionFrameL, null, this);
+
+	player.body.velocity.x = speed;
+	console.log(speed);
+	player.body.velocity.y = 0;
+
+	if (cursors.up.isDown){
+		player.body.velocity.y = -500;
+	}
+ 	
+ 	game.physics.arcade.overlap(player, spikes_r, rightSpikeCol, null, this);
+ 	game.physics.arcade.overlap(player, spikes_l, leftSpikeCol, null, this);
+
+ 	if (count>= 10){
+		counter.x = 230;
+	} 
+
+    
+
+
+}
+
+function collisionFrameR(player, frame2){
+	speed = -speed;
+	count++;
+	spikes_l.visible = true;
+	spikes_r.visible=false;
+	for (var i=0; i<3; i++){
+		spikes_r.children[i].y = 580 - 100*(i+1)*Math.random();
+	}
+	counter.text = '' + count;
+}
+
+function collisionFrameL(player, frame1){
+	speed = -speed;
+	count++;
+	spikes_l.visible = false;
+	spikes_r.visible = true;
+	for (var i=0; i<3; i++){
+		spikes_l.children[i].y = 580 - 100*(i+1)*Math.random();
+	}
+	counter.text = '' + count;
+}
+function rightSpikeCol(player, spikes_r){
+	player.kill();
+
+}
+function leftSpikeCol(player, spikes_l){
+	player.kill();
+}
+
+</script>
+
+</body>
+</html>
